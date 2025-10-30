@@ -1,0 +1,273 @@
+/* ===== RESET & BASE STYLES ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #e8e8e8;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* ===== QUEUE GRID ===== */
+.queue-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    flex: 1;
+    gap: 0;
+    width: 100%;
+    height: calc(100vh - 80px);
+}
+
+/* ===== QUEUE CARD ===== */
+.queue-card {
+    background: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 30px 40px;
+    border: 1px solid #d0d0d0;
+    position: relative;
+    transition: all 0.3s ease;
+}
+/* ===== QUEUE NUMBER ===== */
+.queue-number {
+    font-size: 80px;
+    font-weight: 700;
+    color: #045fe7;
+    letter-spacing: -3px;
+    line-height: 1;
+    text-shadow: 2px 2px 4px rgba(88, 101, 242, 0.1);
+}
+
+/* ===== QUEUE STATUS ===== */
+.queue-status {
+    font-size: 16px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 5px;
+    padding: 4px 12px;
+    background: #e8e8e8;
+    border-radius: 4px;
+}
+
+/* ===== DIVIDER ===== */
+.queue-divider {
+    width: 120px;
+    height: 3px;
+    background: #333dc4;
+    border-radius: 2px;
+}
+
+/* ===== DEPARTMENT NAME ===== */
+.department-name {
+    font-size: 28px;
+    font-weight: 600;
+    color: #515ddb;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* ===== FOOTER BANNER ===== */
+.footer-banner {
+    background: linear-gradient(135deg, #185ae8 0%, #5188e2 100%);
+    color: white;
+    padding: 15px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    min-height: 80px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.footer-title {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.footer-disclaimer {
+    font-size: 13px;
+    line-height: 1.5;
+    opacity: 0.95;
+    text-align: right;
+    max-width: 700px;
+}
+
+/* ===== LOADING & NO DATA STYLES ===== */
+.loading,
+.no-data {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    font-size: 24px;
+    color: #666;
+    background: #f5f5f5;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #e0e0e0;
+    border-top: 5px solid #303dcd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1400px) {
+    .queue-number {
+        font-size: 70px;
+    }
+    
+    .queue-status {
+        font-size: 14px;
+        padding: 3px 10px;
+    }
+    
+    .department-name {
+        font-size: 24px;
+    }
+    
+    .queue-divider {
+        width: 100px;
+    }
+    
+    .queue-card {
+        padding: 25px 35px;
+        gap: 18px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .queue-grid {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    
+    .queue-number {
+        font-size: 60px;
+    }
+    
+    .queue-status {
+        font-size: 13px;
+        padding: 3px 8px;
+    }
+    
+    .department-name {
+        font-size: 22px;
+    }
+    
+    .queue-divider {
+        width: 90px;
+    }
+    
+    .footer-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px 30px;
+        gap: 15px;
+        min-height: 70px;
+    }
+    
+    .footer-title {
+        font-size: 20px;
+    }
+    
+    .footer-disclaimer {
+        text-align: center;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .queue-card {
+        padding: 20px 25px;
+        gap: 15px;
+    }
+    
+    .queue-number {
+        font-size: 50px;
+    }
+    
+    .queue-status {
+        font-size: 12px;
+        padding: 2px 8px;
+    }
+    
+    .department-name {
+        font-size: 18px;
+    }
+    
+    .queue-divider {
+        width: 80px;
+        height: 2px;
+    }
+    
+    .footer-title {
+        font-size: 18px;
+    }
+    
+    .footer-disclaimer {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .queue-number {
+        font-size: 40px;
+    }
+    
+    .queue-status {
+        font-size: 11px;
+        padding: 2px 6px;
+    }
+    
+    .department-name {
+        font-size: 16px;
+    }
+    
+    .queue-divider {
+        width: 60px;
+    }
+    
+    .queue-card {
+        padding: 15px 20px;
+        gap: 12px;
+    }
+    
+    .footer-banner {
+        padding: 15px;
+        min-height: 60px;
+    }
+    
+    .footer-title {
+        font-size: 16px;
+    }
+    
+    .footer-disclaimer {
+        font-size: 10px;
+    }
+}
