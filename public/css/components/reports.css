@@ -28,7 +28,7 @@ body {
 }
 
 header {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+    background: #0d6eb3 100%;
     color: white;
     padding: 1.25rem 2rem;
     box-shadow: var(--shadow-lg);

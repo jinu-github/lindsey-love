@@ -33,32 +33,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Send email
         $reset_link = "http://" . $_SERVER['HTTP_HOST'] . "/equeue/public/reset_password.php?token=" . $token;
-        $subject = "Password Reset - eQueue System";
-        $message = "Hello " . $user['name'] . ",\n\n";
-        $message .= "You have requested to reset your password for the eQueue system.\n\n";
-        $message .= "Click the following link to reset your password:\n";
-        $message .= $reset_link . "\n\n";
-        $message .= "This link will expire in 24 hours.\n\n";
-        $message .= "If you did not request this reset, please ignore this email.\n\n";
-        $message .= "Best regards,\n";
-        $message .= "eQueue System Administrator";
-
-        $headers = "From: noreply@equeue.local\r\n";
-        $headers .= "Reply-To: noreply@equeue.local\r\n";
-        $headers .= "X-Mailer: PHP/" . phpversion();
 
         $emailService = new EmailService();
         if (DEVELOPMENT_MODE) {
             // In development mode, show the reset link directly instead of sending email
             $staff->log_audit_action($user['id'], 'password_reset_requested', 'Password reset link generated (development mode)', $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'] ?? '');
             header("Location: ../../public/forgot_password.php?message=Development mode: Reset link - " . urlencode($reset_link));
-        } elseif ($emailService->sendPasswordResetEmail($user['email'], $user['name'], $reset_link)) {
-            $staff->log_audit_action($user['id'], 'password_reset_requested', 'Password reset email sent', $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'] ?? '');
-            header("Location: ../../public/forgot_password.php?message=If your account exists, a password reset link has been sent to your email");
+            exit();
         } else {
-            header("Location: ../../public/forgot_password.php?error=Failed to send reset email. Please try again");
+            // In production, send the email
+            $success = $emailService->sendPasswordResetEmail($user['email'], $user['name'], $reset_link);
+            if ($success) {
+                $staff->log_audit_action($user['id'], 'password_reset_requested', 'Password reset email sent', $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'] ?? '');
+                header("Location: ../../public/forgot_password.php?message=If your account exists, a password reset link has been sent to your email");
+            } else {
+                error_log("Password reset email failed for user " . $user['id'] . ": " . $emailService->getLastError());
+                header("Location: ../../public/forgot_password.php?error=Failed to send reset email. Please try again");
+            }
+            exit();
         }
-        exit();
     }
 
     if ($action == 'reset_password') {
@@ -98,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($action == 'register') {
         $name = $_POST['name'];
         $username = $_POST['username'];
+        $email = $_POST['email'];
         $password = $_POST['password'];
         $confirm_password = $_POST['confirm_password'];
         $role = $_POST['role'] ?? 'staff'; // Default to staff if not provided
@@ -130,14 +124,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $staff = new Staff($conn);
         if ($staff->find_by_username($username)) {
-            echo "Username already exists.";
-        } else {
-            if ($staff->create($name, $username, $password, $department_id, $role)) {
-                header("Location: ../../public/register.php?message=Account created successfully! You can now log in.");
-            } else {
-                echo "Error: Could not register.";
-            }
+            header("Location: ../../public/register.php?error=Username already exists");
+            exit();
         }
+
+        if ($staff->find_by_email($email)) {
+            header("Location: ../../public/register.php?error=Email address already exists");
+            exit();
+        }
+
+        if ($staff->create($name, $username, $email, $password, $department_id, $role)) {
+            header("Location: ../../public/register.php?message=Account created successfully! You can now log in.");
+        } else {
+            header("Location: ../../public/register.php?error=Error: Could not register. Please try again.");
+        }
+        exit();
     } else if ($action == 'login') {
         session_start();
         $username = $_POST['username'];
@@ -292,12 +293,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['admin_action'])) {
     if ($action == 'create_staff') {
         $name = $_POST['name'];
         $username = $_POST['username'];
+        $email = $_POST['email'];
         $password = $_POST['password'];
         $role = $_POST['role'];
         $department_id = ($role === 'receptionist') ? null : $_POST['department_id'];
 
         // Validate inputs
-        if (empty($name) || empty($username) || empty($password) || empty($role)) {
+        if (empty($name) || empty($username) || empty($email) || empty($password) || empty($role)) {
             echo json_encode(['success' => false, 'message' => 'All fields are required.']);
             exit();
         }
@@ -313,13 +315,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['admin_action'])) {
             exit();
         }
 
+        // Check if email exists
+        if ($staff->find_by_email($email)) {
+            echo json_encode(['success' => false, 'message' => 'Email address already exists.']);
+            exit();
+        }
+
         // Validate password strength
         if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $password)) {
             echo json_encode(['success' => false, 'message' => 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.']);
             exit();
         }
 
-        if ($staff->create_staff($name, $username, $password, $department_id, $role)) {
+        if ($staff->create_staff($name, $username, $email, $password, $department_id, $role)) {
             $staff->log_audit_action($_SESSION['staff_id'], 'staff_created', "Created new {$role} account: {$username}", $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'] ?? '');
             echo json_encode(['success' => true, 'message' => 'Staff account created successfully.']);
         } else {

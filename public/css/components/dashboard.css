@@ -37,7 +37,7 @@ body {
 
 /* Header Styles */
 header {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: #0d6eb3 100%;
     color: white;
     padding: 1.5rem 2rem;
     box-shadow: var(--shadow-lg);
@@ -104,10 +104,18 @@ main {
     padding-top: 0;
 }
 
-/* Form Container */
-.form-container {
+/* Dashboard Layout */
+.dashboard-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.dashboard-layout .form-container {
+    flex: 1;
     max-width: 900px;
-    margin: 0 auto 2rem;
+    margin: 0;
     background: white;
     border-radius: 12px;
     box-shadow: var(--shadow-lg);
@@ -115,8 +123,164 @@ main {
     border: 1px solid var(--border-color);
 }
 
+/* Queue Overview Card */
+.queue-overview-card {
+    width: 350px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    position: sticky;
+    top: 2rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+}
+
+.card-header {
+    background: #0d6eb3 100%;
+    color: white;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 12px 12px 0 0;
+}
+
+.card-header h3 {
+    color:white;
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.btn-sm {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 6px;
+}
+
+#refresh-queue-btn {
+    background: white;
+    color: var(--primary);
+    border: 1px solid var(--border-color);
+}
+
+#refresh-queue-btn:hover:not(:disabled) {
+    background: #f8fafc;
+    color: var(--primary-hover);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-footer {
+    padding: 0.75rem 1.5rem;
+    background: #f8fafc;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.card-footer small {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.queue-dept-item {
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    background: #f8fafc;
+    transition: var(--transition);
+}
+
+.queue-dept-item:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+}
+
+.dept-name {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.queue-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.stat-value.queue-number {
+    background: #1886d4;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    min-width: 2rem;
+    text-align: center;
+}
+
+.stat-value.waiting-count {
+    color: var(--warning);
+}
+
+.stat-value.consultation-count {
+    color: var(--success);
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+}
+
+.loading-spinner i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.no-data,
+.error-message {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.error-message {
+    color: var(--danger);
+}
+
 .form-header {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: #0d6eb4 100%;
     color: white;
     padding: 1.5rem 2rem;
 }
@@ -128,6 +292,7 @@ main {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    color: white;
 }
 
 .form-body {
@@ -323,7 +488,7 @@ main {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+    background: #148ce2;
     color: white;
     box-shadow: var(--shadow);
 }
@@ -423,7 +588,7 @@ main {
 }
 
 .table-header {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+    background: #0763a5 100%;
     color: white;
     padding: 1.25rem 1.5rem;
     display: flex;
@@ -434,6 +599,7 @@ main {
 }
 
 .table-header h3 {
+    color: white;
     margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
@@ -613,7 +779,7 @@ tbody tr:last-child td {
 }
 
 .modal-header {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+    background: #0d6eb3 100%;
     color: white;
     padding: 1.5rem 2rem;
     display: flex;
@@ -626,6 +792,7 @@ tbody tr:last-child td {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
+    color: white;
 }
 
 .close-modal {
@@ -731,6 +898,17 @@ tbody tr:last-child td {
 @media (max-width: 1024px) {
     .container {
         padding: 1.5rem;
+    }
+
+    .dashboard-layout {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .queue-overview-card {
+        width: 100%;
+        position: static;
+        max-height: none;
     }
 
     .grid {

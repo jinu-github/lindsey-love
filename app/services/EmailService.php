@@ -5,53 +5,42 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 class EmailService {
-    private $mailer;
+    private $lastError;
 
     public function __construct() {
-        $this->mailer = new PHPMailer(true);
-
-        // Server settings
-        $this->mailer->isSMTP();
-        $this->mailer->Host = SMTP_HOST;
-        $this->mailer->SMTPAuth = true;
-        $this->mailer->Username = SMTP_USERNAME;
-        $this->mailer->Password = SMTP_PASSWORD;
-        $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $this->mailer->Port = SMTP_PORT;
-
-        // Additional Gmail settings
-        $this->mailer->SMTPDebug = 0; // Disable debugging for production
-        $this->mailer->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
-            )
-        );
-
-        // Default sender
-        $this->mailer->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+        // No initialization needed for PHPMailer
     }
 
     public function sendPasswordResetEmail($toEmail, $toName, $resetLink) {
         try {
+            $mail = new PHPMailer(true);
+
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = SMTP_HOST;
+            $mail->SMTPAuth = true;
+            $mail->Username = SMTP_USERNAME;
+            $mail->Password = SMTP_PASSWORD;
+            $mail->SMTPSecure = SMTP_ENCRYPTION; // Use TLS encryption
+            $mail->Port = SMTP_PORT;
+
             // Recipients
-            $this->mailer->addAddress($toEmail, $toName);
+            $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+            $mail->addReplyTo(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+            $mail->addAddress($toEmail, $toName);
 
             // Content
-            $this->mailer->isHTML(true);
-            $this->mailer->Subject = 'Password Reset - eQueue System';
+            $mail->isHTML(true);
+            $mail->Subject = 'Password Reset - eQueue System';
+            $mail->Body = $this->getPasswordResetEmailTemplate($toName, $resetLink);
+            $mail->AltBody = strip_tags($this->getPasswordResetEmailTemplate($toName, $resetLink));
 
-            $htmlContent = $this->getPasswordResetEmailTemplate($toName, $resetLink);
-            $this->mailer->Body = $htmlContent;
-
-            $textContent = $this->getPasswordResetEmailText($toName, $resetLink);
-            $this->mailer->AltBody = $textContent;
-
-            $this->mailer->send();
+            // Send email
+            $mail->send();
             return true;
         } catch (Exception $e) {
-            error_log("Email sending failed: " . $this->mailer->ErrorInfo);
+            $this->lastError = $mail->ErrorInfo;
+            error_log("Email sending failed: " . $this->lastError);
             return false;
         }
     }
@@ -79,16 +68,16 @@ class EmailService {
                     <h1>eQueue System - Password Reset</h1>
                 </div>
                 <div class='content'>
-                    <h2>Hello {$name},</h2>
+                    <h2>Hello " . htmlspecialchars($name) . ",</h2>
                     <p>You have requested to reset your password for the eQueue system.</p>
                     <p>Please click the button below to reset your password:</p>
                     <p style='text-align: center; margin: 30px 0;'>
-                        <a href='{$resetLink}' class='button'>Reset Password</a>
+                        <a href='" . htmlspecialchars($resetLink) . "' class='button'>Reset Password</a>
                     </p>
                     <p><strong>Important:</strong> This link will expire in 24 hours for security reasons.</p>
                     <p>If you did not request this password reset, please ignore this email. Your password will remain unchanged.</p>
                     <p>If the button above doesn't work, you can copy and paste this link into your browser:</p>
-                    <p><a href='{$resetLink}'>{$resetLink}</a></p>
+                    <p><a href='" . htmlspecialchars($resetLink) . "'>" . htmlspecialchars($resetLink) . "</a></p>
                 </div>
                 <div class='footer'>
                     <p>This is an automated message from the eQueue System. Please do not reply to this email.</p>
@@ -100,21 +89,8 @@ class EmailService {
         ";
     }
 
-    private function getPasswordResetEmailText($name, $resetLink) {
-        return "Hello {$name},
-
-You have requested to reset your password for the eQueue system.
-
-Please click the following link to reset your password:
-{$resetLink}
-
-Important: This link will expire in 24 hours for security reasons.
-
-If you did not request this password reset, please ignore this email. Your password will remain unchanged.
-
-This is an automated message from the eQueue System. Please do not reply to this email.
-
-© " . date('Y') . " eQueue System. All rights reserved.";
+    public function getLastError() {
+        return $this->lastError;
     }
 }
 ?>

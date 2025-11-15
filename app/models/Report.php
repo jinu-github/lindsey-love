@@ -115,10 +115,10 @@ class Report {
                 $date_condition = "AND DATE(p.created_at) = '$selected_date'";
         }
         $dept_condition = $department_id ? "AND p.department_id = $department_id" : '';
-        $query = "SELECT p.*, d.name as department_name, doc.name as doctor_name
+        $query = "SELECT p.*, d.name as department_name, doc.name as department_staff_name
                   FROM patients p
                   LEFT JOIN departments d ON p.department_id = d.id
-                  LEFT JOIN doctors doc ON p.doctor_id = doc.id
+                  LEFT JOIN department_staff doc ON p.department_staff_id = doc.id
                   WHERE 1 $date_condition $dept_condition
                   ORDER BY p.created_at DESC";
         $result = $this->conn->query($query);

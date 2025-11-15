@@ -98,7 +98,6 @@ if (!$has_data && $period == 'day') {
                 <label for="export_format">Export Format:</label>
                 <select id="export_format" name="export_format" required>
                     <option value="pdf">PDF</option>
-                    <option value="doc">Document (DOCX)</option>
                 </select>
                 <button type="submit" class="btn btn-secondary">Export Report</button>
             </form>
@@ -147,7 +146,7 @@ if (!$has_data && $period == 'day') {
                                 <th>Age</th>
                                 <th>Contact</th>
                                 <th>Department</th>
-                                <th>Doctor</th>
+                                <th>Staff</th>
                                 <th>Reason for Visit</th>
                                 <th>Queue Number</th>
                                 <th>Check-in Time</th>
@@ -166,7 +165,7 @@ if (!$has_data && $period == 'day') {
                                     <td><?php echo $patient['age']; ?></td>
                                     <td><?php echo htmlspecialchars($patient['contact_number']); ?></td>
                                     <td><?php echo htmlspecialchars($patient['department_name'] ?? 'N/A'); ?></td>
-                                    <td><?php echo htmlspecialchars($patient['doctor_name'] ?? 'Not Assigned'); ?></td>
+                                    <td><?php echo htmlspecialchars($patient['department_staff_name'] ?? 'Not Assigned'); ?></td>
                                     <td><?php echo htmlspecialchars($patient['reason_for_visit'] ?? 'N/A'); ?></td>
                                     <td><?php echo $patient['queue_number']; ?></td>
                                     <td><?php echo date('M d, Y g:i A', strtotime($patient['check_in_time'])); ?></td>

@@ -122,7 +122,7 @@ $departments = $department_model->get_all();
                             <th>Patient</th>
                             <th>Check-in Time</th>
                             <th>Department</th>
-                            <th>Doctor</th>
+                            <th>Staff</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -135,15 +135,24 @@ $departments = $department_model->get_all();
                             $patient_name = htmlspecialchars($patient_group['patient_name'] ?? 'N/A');
                             $check_in_time = $patient_group['patient_check_in_time'] ? date('g:i A', strtotime($patient_group['patient_check_in_time'])) : 'N/A';
                             $department_name = htmlspecialchars($patient_group['department_name']);
-                            $doctor_name = htmlspecialchars($patient_group['doctor_name'] ?? 'Not Assigned');
+                            $staff_name = htmlspecialchars($patient_group['department_staff_name'] ?? 'Not Assigned');
                             $actions = $patient_group['actions'];
+
+                            // Check if patient has any 'removed' or 'cancelled' action
+                            $has_removed_or_cancelled = false;
+                            foreach ($actions as $action) {
+                                if ($action['action'] == 'removed' || ($action['action'] == 'status_changed' && $action['new_status'] == 'cancelled')) {
+                                    $has_removed_or_cancelled = true;
+                                    break;
+                                }
+                            }
                         ?>
                             <tr>
                                 <td><input type="checkbox" class="patient-checkbox" value="<?php echo $patient_id; ?>"></td>
                                 <td><strong><?php echo $patient_name; ?></strong></td>
                                 <td><?php echo $check_in_time; ?></td>
                                 <td><?php echo $department_name; ?></td>
-                                <td><?php echo $doctor_name; ?></td>
+                                <td><?php echo $staff_name; ?></td>
                                 <td>
                                     <details class="action-details">
                                         <summary class="action-summary">View Actions (<?php echo count($actions); ?>)</summary>
@@ -189,7 +198,7 @@ $departments = $department_model->get_all();
                                                         <?php echo htmlspecialchars($action_display); ?>
                                                     </span>
                                                     <span class="action-dept"><?php echo htmlspecialchars($action['department_name']); ?></span>
-                                                    <?php if (($action['action'] == 'status_changed' && ($action['new_status'] == 'no show' || $action['new_status'] == 'cancelled')) || $action['action'] == 'removed'): ?>
+                                                    <?php if (!$has_removed_or_cancelled && (($action['action'] == 'status_changed' && ($action['new_status'] == 'no show' || $action['new_status'] == 'cancelled')) || $action['action'] == 'removed')): ?>
                                                         <button class="btn btn-primary btn-sm requeue-btn" data-patient-id="<?php echo $patient_id; ?>" data-action-id="<?php echo $action['id']; ?>">
                                                             Requeue
                                                         </button>
@@ -287,32 +296,7 @@ $departments = $department_model->get_all();
                     }
                 });
 
-                // Requeue functionality
-                document.addEventListener('click', function(e) {
-                    if (e.target.classList.contains('requeue-btn')) {
-                        const patientId = e.target.getAttribute('data-patient-id');
-                        if (confirm('Are you sure you want to requeue this patient?')) {
-                            fetch('../app/controllers/PatientController.php?action=requeue_patient&patient_id=' + patientId, {
-                                method: 'GET',
-                                headers: {
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                }
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    alert('Patient requeued successfully with queue number: ' + data.queue_number);
-                                    location.reload();
-                                } else {
-                                    alert('Failed to requeue patient: ' + data.message);
-                                }
-                            })
-                            .catch(error => {
-                                alert('An error occurred while requeuing the patient.');
-                            });
-                        }
-                    }
-                });
+
             });
         </script>
 <script>

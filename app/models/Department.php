@@ -24,5 +24,17 @@ class Department {
         $result = $stmt->get_result();
         return $result->fetch_assoc();
     }
+
+    public function get_staff_by_department($department_id) {
+        $query = "SELECT id, name
+                  FROM department_staff
+                  WHERE department_id = ?
+                  ORDER BY name";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $department_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result;
+    }
 }
 ?>

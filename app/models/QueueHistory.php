@@ -7,7 +7,7 @@ class QueueHistory {
         $this->conn = $db;
     }
 
-    public function log_activity($patient_id, $action, $old_status, $new_status, $department_id, $doctor_id = null, $staff_id = null) {
+    public function log_activity($patient_id, $action, $old_status, $new_status, $department_id, $department_staff_id = null, $staff_id = null) {
         // If department_id is null, get it from the patient record
         if ($department_id === null) {
             $patient_query = "SELECT department_id FROM patients WHERE id = ?";
@@ -19,9 +19,9 @@ class QueueHistory {
             $department_id = $patient['department_id'] ?? null;
         }
 
-        $query = "INSERT INTO " . $this->table_name . " (patient_id, action, old_status, new_status, department_id, doctor_id, staff_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO " . $this->table_name . " (patient_id, action, old_status, new_status, department_id, department_staff_id, staff_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("isssiii", $patient_id, $action, $old_status, $new_status, $department_id, $doctor_id, $staff_id);
+        $stmt->bind_param("isssiii", $patient_id, $action, $old_status, $new_status, $department_id, $department_staff_id, $staff_id);
 
         if ($stmt->execute()) {
             return true;
@@ -30,11 +30,11 @@ class QueueHistory {
     }
 
     public function get_all_activities() {
-        $query = "SELECT qh.*, CONCAT(COALESCE(p.first_name, ''), ' ', COALESCE(p.middle_name, ''), ' ', COALESCE(p.last_name, '')) as patient_name, p.check_in_time as patient_check_in_time, d.name as department_name, doc.name as doctor_name, s.name as staff_name
+        $query = "SELECT qh.*, CONCAT(COALESCE(p.first_name, ''), ' ', COALESCE(p.middle_name, ''), ' ', COALESCE(p.last_name, '')) as patient_name, p.check_in_time as patient_check_in_time, d.name as department_name, doc.name as department_staff_name, s.name as staff_name
                   FROM " . $this->table_name . " qh
                   LEFT JOIN patients p ON qh.patient_id = p.id
                   LEFT JOIN departments d ON qh.department_id = d.id
-                  LEFT JOIN doctors doc ON qh.doctor_id = doc.id
+                  LEFT JOIN department_staff doc ON qh.department_staff_id = doc.id
                   LEFT JOIN staff s ON qh.staff_id = s.id
                   ORDER BY qh.created_at DESC";
         $stmt = $this->conn->prepare($query);
@@ -43,11 +43,11 @@ class QueueHistory {
     }
 
     public function get_activities_by_department($department_id) {
-        $query = "SELECT qh.*, CONCAT(COALESCE(p.first_name, ''), ' ', COALESCE(p.middle_name, ''), ' ', COALESCE(p.last_name, '')) as patient_name, p.check_in_time as patient_check_in_time, d.name as department_name, doc.name as doctor_name, s.name as staff_name
+        $query = "SELECT qh.*, CONCAT(COALESCE(p.first_name, ''), ' ', COALESCE(p.middle_name, ''), ' ', COALESCE(p.last_name, '')) as patient_name, p.check_in_time as patient_check_in_time, d.name as department_name, doc.name as department_staff_name, s.name as staff_name
                   FROM " . $this->table_name . " qh
                   LEFT JOIN patients p ON qh.patient_id = p.id
                   LEFT JOIN departments d ON qh.department_id = d.id
-                  LEFT JOIN doctors doc ON qh.doctor_id = doc.id
+                  LEFT JOIN department_staff doc ON qh.department_staff_id = doc.id
                   LEFT JOIN staff s ON qh.staff_id = s.id
                   WHERE qh.department_id = ?
                   ORDER BY qh.created_at DESC";
@@ -85,7 +85,7 @@ class QueueHistory {
                     CONCAT(COALESCE(p.first_name, ''), ' ', COALESCE(p.middle_name, ''), ' ', COALESCE(p.last_name, '')) as patient_name,
                     p.check_in_time as patient_check_in_time,
                     d.name as department_name,
-                    doc.name as doctor_name,
+                    doc.name as department_staff_name,
                     GROUP_CONCAT(
                         JSON_OBJECT(
                             'id', qh.id,
@@ -94,7 +94,7 @@ class QueueHistory {
                             'new_status', qh.new_status,
                             'created_at', qh.created_at,
                             'department_name', d2.name,
-                            'doctor_name', doc2.name
+                            'department_staff_name', doc2.name
                         )
                         ORDER BY qh.created_at DESC
                         SEPARATOR '|||'
@@ -102,9 +102,9 @@ class QueueHistory {
                   FROM patients p
                   LEFT JOIN " . $this->table_name . " qh ON p.id = qh.patient_id
                   LEFT JOIN departments d ON p.department_id = d.id
-                  LEFT JOIN doctors doc ON p.doctor_id = doc.id
+                  LEFT JOIN department_staff doc ON p.department_staff_id = doc.id
                   LEFT JOIN departments d2 ON qh.department_id = d2.id
-                  LEFT JOIN doctors doc2 ON qh.doctor_id = doc2.id
+                  LEFT JOIN department_staff doc2 ON qh.department_staff_id = doc2.id
                   $where_clause
                   GROUP BY p.id, p.first_name, p.middle_name, p.last_name, p.check_in_time, d.name, doc.name
                   HAVING COUNT(qh.id) > 0

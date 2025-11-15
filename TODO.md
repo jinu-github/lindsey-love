@@ -1,8 +1,6 @@
-# TODO: Add Notifications for Successful Registration and Login
+# TODO: Switch Forgot Password to PHPMailer with Google App Password
 
-## Tasks
-- [x] Add toast notification system to `public/register.php` (similar to `login.php`)
-- [x] Update `app/controllers/StaffController.php` in 'register' action to redirect to `register.php` with success message
-- [x] Remove login successful toast from `public/welcome.php` (as per user feedback)
-- [x] Test registration flow for toast notification (PHP server started, but browser testing disabled)
-- [x] Test login flow for toast notification (PHP server started, but browser testing disabled)
+- [x] Update config/config.php to use Gmail SMTP settings (smtp.gmail.com, port 587)
+- [x] Modify app/services/EmailService.php to use PHPMailer instead of Mailtrap API
+- [x] Fix StaffController.php forgot_password action to properly send emails in production and handle development mode
+- [x] Test the forgot password functionality with Gmail SMTP

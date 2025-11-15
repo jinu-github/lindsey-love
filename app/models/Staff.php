@@ -1,7 +1,7 @@
 <?php
 class Staff {
     private $conn;
-    private $table_name = "staff";
+    private $table_name = "user_staff";
 
     public $id;
     public $name;
@@ -15,13 +15,13 @@ class Staff {
         $this->conn = $db;
     }
 
-    public function create($name, $username, $password, $department_id, $role = 'staff') {
-        $query = "INSERT INTO " . $this->table_name . " (name, username, password, department_id, role) VALUES (?, ?, ?, ?, ?)";
+    public function create($name, $username, $email, $password, $department_id, $role = 'staff') {
+        $query = "INSERT INTO " . $this->table_name . " (name, username, email, password, department_id, role) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($query);
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         // Use 'i' for department_id since it can be null
-        $stmt->bind_param("sssis", $name, $username, $hashed_password, $department_id, $role);
+        $stmt->bind_param("ssssis", $name, $username, $email, $hashed_password, $department_id, $role);
 
         if ($stmt->execute()) {
             return true;
@@ -114,12 +114,12 @@ class Staff {
         return $stmt->affected_rows > 0;
     }
 
-    public function create_staff($name, $username, $password, $department_id, $role) {
+    public function create_staff($name, $username, $email, $password, $department_id, $role) {
         // Only allow creating staff or receptionist accounts
         if (!in_array($role, ['staff', 'receptionist'])) {
             return false;
         }
-        return $this->create($name, $username, $password, $department_id, $role);
+        return $this->create($name, $username, $email, $password, $department_id, $role);
     }
 
     public function find_by_id($staff_id) {

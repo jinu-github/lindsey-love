@@ -1,7 +1,7 @@
 <?php
-class Doctor {
+class DepartmentStaff {
     private $conn;
-    private $table_name = "doctors";
+    private $table_name = "department_staff";
 
     public $id;
     public $name;
@@ -20,13 +20,14 @@ class Doctor {
         $result = $stmt->get_result();
         return $result->fetch_assoc();
     }
+
     public function get_all_by_department($department_id) {
-    $query = "SELECT * FROM " . $this->table_name . " WHERE department_id = ?";
-    $stmt = $this->conn->prepare($query);
-    $stmt->bind_param("i", $department_id);
-    $stmt->execute();
-    return $stmt->get_result();
-}
+        $query = "SELECT * FROM " . $this->table_name . " WHERE department_id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $department_id);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
 
     public function get_by_id($id) {
         $query = "SELECT * FROM " . $this->table_name . " WHERE id = ? LIMIT 1";

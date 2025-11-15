@@ -108,7 +108,7 @@ function generateDOCX($patients, $status_distribution, $daily_trends, $hourly_di
     $table->addCell(1000)->addText('Age');
     $table->addCell(1500)->addText('Contact');
     $table->addCell(1500)->addText('Department');
-    $table->addCell(1500)->addText('Doctor');
+    $table->addCell(1500)->addText('Staff');
     $table->addCell(2000)->addText('Reason for Visit');
     $table->addCell(1000)->addText('Queue Number');
     $table->addCell(1200)->addText('Status');
@@ -122,7 +122,7 @@ function generateDOCX($patients, $status_distribution, $daily_trends, $hourly_di
         $table->addCell(1000)->addText($patient['age']);
         $table->addCell(1500)->addText($patient['contact_number']);
         $table->addCell(1500)->addText($patient['department_name'] ?? 'N/A');
-        $table->addCell(1500)->addText($patient['doctor_name'] ?? 'Not Assigned');
+        $table->addCell(1500)->addText($patient['department_staff_name'] ?? 'Not Assigned');
         $table->addCell(2000)->addText($patient['reason_for_visit'] ?? 'N/A');
         $table->addCell(1000)->addText($patient['queue_number']);
         $table->addCell(1200)->addText(ucfirst($patient['status']));
@@ -179,7 +179,7 @@ function generateReportHTML($patients, $status_distribution, $daily_trends, $hou
     // Patient Details Table
     $html .= "<h2>Patient Details</h2>";
     $html .= "<table border='1' style='border-collapse: collapse; width: 100%;'>";
-    $html .= "<thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Contact</th><th>Department</th><th>Doctor</th><th>Reason for Visit</th><th>Queue Number</th><th>Status</th><th>Check-in Time</th><th>Created At</th></tr></thead>";
+    $html .= "<thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Contact</th><th>Department</th><th>Staff</th><th>Reason for Visit</th><th>Queue Number</th><th>Status</th><th>Check-in Time</th><th>Created At</th></tr></thead>";
     $html .= "<tbody>";
 
     foreach ($patients as $patient) {
@@ -189,7 +189,7 @@ function generateReportHTML($patients, $status_distribution, $daily_trends, $hou
         $html .= "<td>" . $patient['age'] . "</td>";
         $html .= "<td>" . htmlspecialchars($patient['contact_number']) . "</td>";
         $html .= "<td>" . htmlspecialchars($patient['department_name'] ?? 'N/A') . "</td>";
-        $html .= "<td>" . htmlspecialchars($patient['doctor_name'] ?? 'Not Assigned') . "</td>";
+        $html .= "<td>" . htmlspecialchars($patient['department_staff_name'] ?? 'Not Assigned') . "</td>";
         $html .= "<td>" . htmlspecialchars($patient['reason_for_visit'] ?? 'N/A') . "</td>";
         $html .= "<td>" . $patient['queue_number'] . "</td>";
         $html .= "<td>" . ucfirst($patient['status']) . "</td>";

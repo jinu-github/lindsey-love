@@ -64,10 +64,10 @@ if ($is_receptionist) {
                 <a href="sms.php"><i class="fas fa-sms"></i> Send SMS</a>
                 <a href="queue_history.php"><i class="fas fa-history"></i> Queue History</a>
                 <a href="reports.php"><i class="fas fa-chart-bar"></i> Reports</a>
-            <?php elseif ($is_admin): ?>
-                <a href="reports.php"><i class="fas fa-chart-bar"></i> Reports</a>
             <?php elseif ($is_receptionist): ?>
             <a href="receptionist_history.php"><i class="fas fa-history"></i> History</a>
+            <?php elseif ($is_admin): ?>
+            <a href="reports.php"><i class="fas fa-chart-bar"></i> Reports</a>
             <?php endif; ?>
             <a href="../app/controllers/StaffController.php?action=logout" onclick="return confirm('Are you sure you want to logout?')"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
@@ -76,162 +76,180 @@ if ($is_receptionist) {
         <main>
             <!-- Patient Registration Section - Only show for receptionists -->
             <?php if ($is_receptionist): ?>
-            <div class="form-container">
-                <div class="form-header">
-                    <h2>Patient Information Form</h2>
+            <div class="dashboard-layout">
+                <div class="form-container">
+                    <div class="form-header">
+                       <h2><i class="fas fa-hospital"></i> Patient Information Form</h2>
+                    </div>
+
+                    <div class="form-body">
+                        <?php if(isset($_GET['message'])): ?>
+                            <div class="alert alert-success">
+                                <?php echo htmlspecialchars($_GET['message']); ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if(isset($_GET['error'])): ?>
+                            <div class="alert alert-error">
+                                <?php echo htmlspecialchars($_GET['error']); ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <form action="../app/controllers/PatientController.php" method="POST">
+                            <input type="hidden" name="action" value="register">
+
+                            <div class="grid">
+                                <div class="field">
+                                    <label for="first_name">First Name <span class="required">*</span></label>
+                                    <input type="text" id="first_name" name="first_name" required>
+                                </div>
+
+                                <div class="field">
+                                    <label for="middle_name">Middle Name</label>
+                                    <input type="text" id="middle_name" name="middle_name">
+                                </div>
+
+                                <div class="field">
+                                    <label for="last_name">Last Name <span class="required">*</span></label>
+                                    <input type="text" id="last_name" name="last_name" required>
+                                </div>
+
+                                <div class="field">
+                                    <label for="birthdate">Birthdate <span class="required">*</span></label>
+                                    <input type="date" id="birthdate" name="birthdate" required>
+                                </div>
+
+                                <div class="field">
+                                    <label for="age">Age</label>
+                                    <input type="number" id="age" name="age" readonly>
+                                </div>
+
+                                <div class="field">
+                                    <label for="contact_number">Contact Number</label>
+                                    <input type="text" id="contact_number" name="contact_number" required placeholder="+63">
+                                </div>
+
+                                <div class="field span-3">
+                                    <label for="address">Address</label>
+                                    <textarea id="address" name="address" placeholder="Street, Barangay, City"></textarea>
+                                </div>
+
+                                <div class="field">
+                                    <label for="gender">Gender</label>
+                                    <select id="gender" name="gender">
+                                        <option value=""disabled selected>Select Gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="prefer not to say">Prefer not to say</option>
+                                    </select>
+                                </div>
+
+                                <div class="field">
+                                    <label for="civil_status">Civil Status</label>
+                                    <select id="civil_status" name="civil_status">
+                                        <option value=""disabled selected>Select Status</option>
+                                        <option value="single">Single</option>
+                                        <option value="married">Married</option>
+                                        <option value="widow">Widow</option>
+                                    </select>
+                                </div>
+
+                                <div class="field">
+                                    <label for="registration_datetime">Registration Date</label>
+                                    <input type="datetime-local" id="registration_datetime" name="registration_datetime">
+                                </div>
+
+                                <div class="field span-2">
+                                    <label for="reason_for_visit">Reason for Visit <span class="required">*</span></label>
+                                    <select id="reason_for_visit" name="reason_for_visit" required>
+                                        <option value=""disabled selected>Select Reason</option>
+                                        <option value="Check-up">Check-up</option>
+                                        <option value="Follow-up">Follow-up</option>
+                                        <option value="Prescription">Prescription</option>
+                                        <option value="Laboratory">Laboratory</option>
+                                        <option value="Vaccination">Vaccination</option>
+                                        <option value="Consultation">Consultation</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                </div>
+
+                                <div class="field">
+                                    <label for="parent_guardian">Parent/Guardian</label>
+                                    <input type="text" id="parent_guardian" name="parent_guardian" placeholder="If minor">
+                                </div>
+
+                                <div class="section-title">Vital Signs</div>
+
+                                <div class="field">
+                                    <label for="bp">Blood Pressure</label>
+                                    <input type="text" id="bp" name="bp" placeholder="120/80">
+                                </div>
+
+                                <div class="field">
+                                    <label for="temp">Temperature</label>
+                                    <input type="text" id="temp" name="temp" placeholder="36.5°C">
+                                </div>
+
+                                <div class="field">
+                                    <label for="cr_pr">Pulse Rate</label>
+                                    <input type="text" id="cr_pr" name="cr_pr" placeholder="80 bpm">
+                                </div>
+
+                                <div class="field">
+                                    <label for="rr">Respiratory Rate</label>
+                                    <input type="text" id="rr" name="rr" placeholder="16/min">
+                                </div>
+
+                                <div class="field">
+                                    <label for="wt">Weight</label>
+                                    <input type="text" id="wt" name="wt" placeholder="70 kg">
+                                </div>
+
+                                <div class="field">
+                                    <label for="o2sat">Oxygen Sat.</label>
+                                    <input type="text" id="o2sat" name="o2sat" placeholder="98%">
+                                </div>
+
+                                <div class="field">
+                                    <label for="department_id">Department <span class="required">*</span></label>
+                                    <select id="department_id" name="department_id" required>
+                                        <option value=""disabled selected>Select Department</option>
+                                        <?php foreach ($departments as $dept): ?>
+                                            <option value="<?php echo $dept['id']; ?>"><?php echo htmlspecialchars($dept['name']); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
+                                <div class="field span-2">
+                                    <label for="department_staff_id">Assign Staff</label>
+                                    <select id="department_staff_id" name="department_staff_id" required>
+                                        <option value="">Select Department First</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="button-group">
+                                <button type="submit" class="btn btn-primary">Add Patient</button>
+                                <button type="reset" class="btn btn-secondary">Clear Form</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
-                <div class="form-body">
-                    <?php if(isset($_GET['message'])): ?>
-                        <div class="alert alert-success">
-                            <?php echo htmlspecialchars($_GET['message']); ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if(isset($_GET['error'])): ?>
-                        <div class="alert alert-error">
-                            <?php echo htmlspecialchars($_GET['error']); ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <form action="../app/controllers/PatientController.php" method="POST">
-                        <input type="hidden" name="action" value="register">
-
-                        <div class="grid">
-                            <div class="field">
-                                <label for="first_name">First Name <span class="required">*</span></label>
-                                <input type="text" id="first_name" name="first_name" required>
-                            </div>
-
-                            <div class="field">
-                                <label for="middle_name">Middle Name</label>
-                                <input type="text" id="middle_name" name="middle_name">
-                            </div>
-
-                            <div class="field">
-                                <label for="last_name">Last Name <span class="required">*</span></label>
-                                <input type="text" id="last_name" name="last_name" required>
-                            </div>
-
-                            <div class="field">
-                                <label for="birthdate">Birthdate <span class="required">*</span></label>
-                                <input type="date" id="birthdate" name="birthdate" required>
-                            </div>
-
-                            <div class="field">
-                                <label for="age">Age</label>
-                                <input type="number" id="age" name="age" readonly>
-                            </div>
-
-                            <div class="field">
-                                <label for="contact_number">Contact Number</label>
-                                <input type="text" id="contact_number" name="contact_number" required placeholder="+63">
-                            </div>
-
-                            <div class="field span-3">
-                                <label for="address">Address</label>
-                                <textarea id="address" name="address" placeholder="Street, Barangay, City"></textarea>
-                            </div>
-
-                            <div class="field">
-                                <label for="gender">Gender</label>
-                                <select id="gender" name="gender">
-                                    <option value=""disabled selected>Select Gender</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="prefer not to say">Prefer not to say</option>
-                                </select>
-                            </div>
-
-                            <div class="field">
-                                <label for="civil_status">Civil Status</label>
-                                <select id="civil_status" name="civil_status">
-                                    <option value=""disabled selected>Select Status</option>
-                                    <option value="single">Single</option>
-                                    <option value="married">Married</option>
-                                    <option value="widow">Widow</option>
-                                </select>
-                            </div>
-
-                            <div class="field">
-                                <label for="registration_datetime">Registration Date</label>
-                                <input type="datetime-local" id="registration_datetime" name="registration_datetime">
-                            </div>
-
-                            <div class="field span-2">
-                                <label for="reason_for_visit">Reason for Visit <span class="required">*</span></label>
-                                <select id="reason_for_visit" name="reason_for_visit" required>
-                                    <option value=""disabled selected>Select Reason</option>
-                                    <option value="Check-up">Check-up</option>
-                                    <option value="Follow-up">Follow-up</option>
-                                    <option value="Prescription">Prescription</option>
-                                    <option value="Laboratory">Laboratory</option>
-                                    <option value="Vaccination">Vaccination</option>
-                                    <option value="Consultation">Consultation</option>
-                                    <option value="Others">Others</option>
-                                </select>
-                            </div>
-
-                            <div class="field">
-                                <label for="parent_guardian">Parent/Guardian</label>
-                                <input type="text" id="parent_guardian" name="parent_guardian" placeholder="If minor">
-                            </div>
-
-                            <div class="section-title">Vital Signs</div>
-
-                            <div class="field">
-                                <label for="bp">Blood Pressure</label>
-                                <input type="text" id="bp" name="bp" placeholder="120/80">
-                            </div>
-
-                            <div class="field">
-                                <label for="temp">Temperature</label>
-                                <input type="text" id="temp" name="temp" placeholder="36.5°C">
-                            </div>
-
-                            <div class="field">
-                                <label for="cr_pr">Pulse Rate</label>
-                                <input type="text" id="cr_pr" name="cr_pr" placeholder="80 bpm">
-                            </div>
-
-                            <div class="field">
-                                <label for="rr">Respiratory Rate</label>
-                                <input type="text" id="rr" name="rr" placeholder="16/min">
-                            </div>
-
-                            <div class="field">
-                                <label for="wt">Weight</label>
-                                <input type="text" id="wt" name="wt" placeholder="70 kg">
-                            </div>
-
-                            <div class="field">
-                                <label for="o2sat">Oxygen Sat.</label>
-                                <input type="text" id="o2sat" name="o2sat" placeholder="98%">
-                            </div>
-
-                            <div class="field">
-                                <label for="department_id">Department <span class="required">*</span></label>
-                                <select id="department_id" name="department_id" required>
-                                    <option value=""disabled selected>Select Department</option>
-                                    <?php foreach ($departments as $dept): ?>
-                                        <option value="<?php echo $dept['id']; ?>"><?php echo htmlspecialchars($dept['name']); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <div class="field span-2">
-                                <label for="doctor_id">Assign Doctor</label>
-                                <select id="doctor_id" name="doctor_id" required>
-                                    <option value="">Select Department First</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="button-group">
-                            <button type="submit" class="btn btn-primary">Add Patient</button>
-                            <button type="reset" class="btn btn-secondary">Clear Form</button>
-                        </div>
-                    </form>
+                <!-- Queue Overview Card -->
+                <div class="queue-overview-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line"></i> Queue Overview</h3>
+                        <button id="refresh-queue-btn" class="btn btn-secondary btn-sm" title="Refresh">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="card-body" id="queue-overview-content">
+                        <!-- Queue data will be loaded here -->
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">Auto-refreshes every 5 seconds</small>
+                    </div>
                 </div>
             </div>
             <?php endif; ?>
@@ -284,11 +302,6 @@ if ($is_receptionist) {
                         <div class="table-section">
                             <div class="table-header">
                                 <h3 style="color: white;"><?php echo $dept['name']; ?> Department</h3>
-                                <div class="header-actions">
-                                    <button class="btn btn-warning reset-queue-btn" data-department-id="<?php echo $dept['id']; ?>" data-department-name="<?php echo $dept['name']; ?>">
-                                        <i class="fas fa-redo"></i> Reset Queue
-                                    </button>
-                                </div>
                             </div>
 
                             <table>
@@ -298,7 +311,7 @@ if ($is_receptionist) {
                                         <th>Patient Name</th>
                                         <th>Status</th>
                                         <th>Check-in Time</th>
-                                        <th>Doctor</th>
+                                        <th>Staff</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -323,20 +336,27 @@ if ($is_receptionist) {
                                                 </span>
                                             </td>
                                             <td><?php echo date('g:i A', strtotime($patient['check_in_time'])); ?></td>
-                                            <td><?php echo htmlspecialchars($patient['doctor_name'] ?? 'Not Assigned'); ?></td>
+                                            <td><?php echo htmlspecialchars($patient['department_staff_name'] ?? 'Not Assigned'); ?></td>
                                             <td>
                                                 <div class="actions">
-                                                    <button type="button" class="btn btn-secondary view-patient-btn" data-patient-id="<?php echo $patient['id']; ?>"><strong>View</strong></button>
-                                                    <a href="edit_patient.php?id=<?php echo $patient['id']; ?>" class="btn btn-secondary">Edit</a>
+                                                    <button type="button" class="btn btn-secondary view-patient-btn" data-patient-id="<?php echo $patient['id']; ?>" title="View">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
                                                     <?php if($patient['status'] !== 'in consultation' && $previous_patient_completed): ?>
                                                         <a href="../app/controllers/PatientController.php?action=update_status&id=<?php echo $patient['id']; ?>&status=in consultation"
-                                                           class="btn btn-warning">Start</a>
+                                                        class="btn btn-warning" title="Start Consultation">
+                                                            <i class="fas fa-play"></i>
+                                                        </a>
                                                     <?php endif; ?>
                                                     <?php if($patient['status'] === 'in consultation'): ?>
                                                         <a href="../app/controllers/PatientController.php?action=update_status&id=<?php echo $patient['id']; ?>&status=done"
-                                                           class="btn btn-success">Complete</a>
+                                                        class="btn btn-success" title="Complete">
+                                                            <i class="fas fa-check"></i>
+                                                        </a>
                                                     <?php endif; ?>
-                                                    <a href="#" class="btn btn-danger remove-patient" data-id="<?php echo $patient['id']; ?>">Remove</a>
+                                                    <a href="#" class="btn btn-danger remove-patient" data-id="<?php echo $patient['id']; ?>" title="Remove">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -380,47 +400,47 @@ if ($is_receptionist) {
 
     <script>
     $(document).ready(function() {
-        // Only initialize doctor loading if the form is present (for receptionists)
-        if ($('#doctor_id').length > 0) {
-            // Load doctors based on department selection
-            function loadDoctors(departmentId) {
-                var doctorSelect = $('#doctor_id');
+        // Only initialize department_staff loading if the form is present (for receptionists)
+        if ($('#department_staff_id').length > 0) {
+            // Load department_staff based on department selection
+            function loadDepartmentStaff(departmentId) {
+                var departmentStaffSelect = $('#department_staff_id');
 
                 if (departmentId) {
                     // Show loading state
-                    doctorSelect.html('<option value="">Loading doctors...</option>');
+                    departmentStaffSelect.html('<option value="">Loading staff...</option>');
 
                     $.ajax({
-                        url: 'get_doctors.php',
+                        url: 'get_department_staff.php',
                         type: 'GET',
                         data: { department_id: departmentId },
                         dataType: 'json',
-                        success: function(doctors) {
-                            doctorSelect.empty().append('<option value=""> Select Doctor </option>');
-                            $.each(doctors, function(key, doctor) {
-                                doctorSelect.append('<option value="' + doctor.id + '">' + doctor.name + '</option>');
+                        success: function(staff) {
+                            departmentStaffSelect.empty().append('<option value=""> Select Staff </option>');
+                            $.each(staff, function(key, member) {
+                                departmentStaffSelect.append('<option value="' + member.id + '">' + member.name + '</option>');
                             });
                         },
                         error: function() {
-                            doctorSelect.html('<option value="">Error loading doctors</option>');
-                            alert('Failed to load doctors. Please check the connection.');
+                            departmentStaffSelect.html('<option value="">Error loading staff</option>');
+                            alert('Failed to load staff. Please check the connection.');
                         }
                     });
                 } else {
-                    doctorSelect.empty().append('<option value=""> Select Department First </option>');
+                    departmentStaffSelect.empty().append('<option value=""> Select Department First </option>');
                 }
             }
 
-            // Load doctors for the staff's department on page load (for staff) - but since form is hidden for staff, this won't run
+            // Load department_staff for the staff's department on page load (for staff) - but since form is hidden for staff, this won't run
             var initialDepartmentId = $('input[name="department_id"]').val();
             if (initialDepartmentId) {
-                loadDoctors(initialDepartmentId);
+                loadDepartmentStaff(initialDepartmentId);
             }
 
             // Handle department change for receptionists
             $('#department_id').change(function() {
                 var selectedDepartmentId = $(this).val();
-                loadDoctors(selectedDepartmentId);
+                loadDepartmentStaff(selectedDepartmentId);
             });
         }
 
@@ -476,51 +496,7 @@ if ($is_receptionist) {
             });
         });
 
-        // Handle reset queue button clicks
-        $(document).on('click', '.reset-queue-btn', function(e) {
-            e.preventDefault();
 
-            var button = $(this);
-            var departmentId = button.data('department-id');
-            var departmentName = button.data('department-name');
-
-            if (confirm('Are you sure you want to reset the queue for ' + departmentName + ' department? This will reassign queue numbers starting from 1 for all active patients.')) {
-                // Disable button and show loading state
-                button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Resetting...');
-
-                // Send AJAX request to reset queue
-                $.ajax({
-                    url: '../app/controllers/PatientController.php',
-                    type: 'GET',
-                    data: {
-                        action: 'reset_queue',
-                        department_id: departmentId
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success !== false) {
-                            // Success - reload page to show updated queue numbers
-                            alert('Queue reset successfully! Queue numbers have been reassigned starting from 1.');
-                            location.reload();
-                        } else {
-                            // Error
-                            alert('Failed to reset queue: ' + (response.message || 'Unknown error'));
-                            button.prop('disabled', false).html('<i class="fas fa-redo"></i> Reset Queue');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('AJAX Error Details:', {
-                            status: xhr.status,
-                            statusText: xhr.statusText,
-                            responseText: xhr.responseText,
-                            readyState: xhr.readyState
-                        });
-                        alert('Error resetting queue. Check console for details.');
-                        button.prop('disabled', false).html('<i class="fas fa-redo"></i> Reset Queue');
-                    }
-                });
-            }
-        });
 
         // Theme toggle functionality (only if theme toggle button exists)
         const themeToggle = document.getElementById('theme-toggle');
@@ -671,7 +647,7 @@ if ($is_receptionist) {
                                             <strong>Department:</strong> ${patient.department_name || 'N/A'}
                                         </div>
                                         <div class="summary-item">
-                                            <strong>Doctor:</strong> ${patient.doctor_name || 'N/A'}
+                                            <strong>Staff:</strong> ${patient.department_staff_name || 'N/A'}
                                         </div>
                                         <div class="summary-item">
                                             <strong>Reason for Visit:</strong> ${patient.reason_for_visit || 'N/A'}
@@ -692,22 +668,22 @@ if ($is_receptionist) {
                                     <h3>Vital Signs</h3>
                                     <div class="summary-grid">
                                         <div class="summary-item">
-                                            <strong>BP:</strong> ${patient.bp || 'N/A'}
+                                            <strong>BP:</strong> ${patient.latest_bp || 'N/A'}
                                         </div>
                                         <div class="summary-item">
-                                            <strong>Temperature:</strong> ${patient.temp || 'N/A'}
+                                            <strong>Temperature:</strong> ${patient.latest_temp || 'N/A'}
                                         </div>
                                         <div class="summary-item">
-                                            <strong>CR/PR:</strong> ${patient.cr_pr || 'N/A'}
+                                            <strong>CR/PR:</strong> ${patient.latest_cr_pr || 'N/A'}
                                         </div>
                                         <div class="summary-item">
-                                            <strong>RR:</strong> ${patient.rr || 'N/A'}
+                                            <strong>RR:</strong> ${patient.latest_rr || 'N/A'}
                                         </div>
                                         <div class="summary-item">
-                                            <strong>Weight:</strong> ${patient.wt || 'N/A'}
+                                            <strong>Weight:</strong> ${patient.latest_wt || 'N/A'}
                                         </div>
                                         <div class="summary-item">
-                                            <strong>O2SAT:</strong> ${patient.o2sat || 'N/A'}
+                                            <strong>O2SAT:</strong> ${patient.latest_o2sat || 'N/A'}
                                         </div>
                                     </div>
                                 </div>
@@ -828,6 +804,87 @@ if ($is_receptionist) {
         });
         <?php endif; ?>
 
+        // Function to load queue overview for receptionists
+        <?php if ($is_receptionist): ?>
+        function loadQueueOverview() {
+            var contentDiv = $('#queue-overview-content');
+
+            $.ajax({
+                url: '../app/controllers/PatientController.php',
+                type: 'GET',
+                data: { action: 'get_all_queue_overview' },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success && response.overview) {
+                        response.overview.forEach(function(dept) {
+                            var nextQueue = dept.next_queue || 'None';
+                            var waitingCount = dept.waiting_count || 0;
+                            var inConsultationCount = dept.in_consultation_count || 0;
+
+                            // Update individual department items without fading
+                            var deptItem = $('#dept-' + dept.id);
+                            if (deptItem.length === 0) {
+                                // Create new department item if it doesn't exist
+                                var html = `
+                                    <div class="queue-dept-item" id="dept-${dept.id}">
+                                        <div class="dept-name">${dept.name}</div>
+                                        <div class="queue-stats">
+                                            <div class="stat-item">
+                                                <span class="stat-label">Next:</span>
+                                                <span class="stat-value queue-number">${nextQueue}</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="stat-label">Waiting:</span>
+                                                <span class="stat-value waiting-count">${waitingCount}</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="stat-label">In Consultation:</span>
+                                                <span class="stat-value consultation-count">${inConsultationCount}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                contentDiv.append(html);
+                            } else {
+                                // Update existing department item values
+                                deptItem.find('.queue-number').text(nextQueue);
+                                deptItem.find('.waiting-count').text(waitingCount);
+                                deptItem.find('.consultation-count').text(inConsultationCount);
+                            }
+                        });
+                    } else {
+                        contentDiv.html('<div class="no-data">No queue data available</div>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading queue overview:', error);
+                    contentDiv.html('<div class="error-message">Error loading queue data</div>');
+                }
+            });
+        }
+
+        // Manual refresh button
+        $('#refresh-queue-btn').on('click', function() {
+            var btn = $(this);
+            var icon = btn.find('i');
+            icon.addClass('fa-spin');
+            btn.prop('disabled', true);
+
+            loadQueueOverview();
+
+            setTimeout(function() {
+                icon.removeClass('fa-spin');
+                btn.prop('disabled', false);
+            }, 1000);
+        });
+
+        // Auto-refresh every 5 seconds
+        setInterval(loadQueueOverview, 5000);
+
+        // Load queue overview on page load
+        loadQueueOverview();
+        <?php endif; ?>
+
         // Auto-refresh queue data every 3 seconds for staff
         <?php if (!$is_receptionist && !$is_admin): ?>
         function refreshQueueData() {
@@ -868,7 +925,7 @@ if ($is_receptionist) {
                                                 </span>
                                             </td>
                                             <td>${new Date(patient.check_in_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</td>
-                                            <td>${patient.doctor_name || 'Not Assigned'}</td>
+                                            <td>${patient.department_staff_name || 'Not Assigned'}</td>
                                             <td>
                                                 <div class="actions">
                                                     <button type="button" class="btn btn-secondary view-patient-btn" data-patient-id="${patient.id}"><strong>View</strong></button>

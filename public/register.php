@@ -60,6 +60,11 @@
                 </div>
 
                 <div class="register-form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email address">
+                </div>
+
+                <div class="register-form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" required placeholder="Create a password" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" title="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character">
                     <span class="toggle-password" onclick="togglePassword('password', this)">

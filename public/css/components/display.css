@@ -41,7 +41,7 @@ body {
 .queue-number {
     font-size: 80px;
     font-weight: 700;
-    color: #045fe7;
+    color: #036bb1;
     letter-spacing: -3px;
     line-height: 1;
     text-shadow: 2px 2px 4px rgba(88, 101, 242, 0.1);
@@ -64,7 +64,7 @@ body {
 .queue-divider {
     width: 120px;
     height: 3px;
-    background: #333dc4;
+    background: #0a85ba;
     border-radius: 2px;
 }
 
@@ -72,7 +72,7 @@ body {
 .department-name {
     font-size: 28px;
     font-weight: 600;
-    color: #515ddb;
+    color: #0f6cbe;
     text-transform: uppercase;
     letter-spacing: 1.5px;
     text-align: center;
@@ -81,7 +81,7 @@ body {
 
 /* ===== FOOTER BANNER ===== */
 .footer-banner {
-    background: linear-gradient(135deg, #185ae8 0%, #5188e2 100%);
+    background: linear-gradient(to right, #099185 0%, #2e93db 100%);
     color: white;
     padding: 15px 40px;
     display: flex;

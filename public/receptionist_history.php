@@ -181,6 +181,46 @@ $patients = $patient_model->get_all_ordered_by_registration();
             margin: 0;
         }
 
+        /* Modal form styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            background: white;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--border-color);
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .search-filter-bar {
@@ -331,6 +371,11 @@ $patients = $patient_model->get_all_ordered_by_registration();
                                             <button class="btn btn-warning view-patient" data-id="<?php echo $patient['id']; ?>">
                                                 <i class="fas fa-eye"></i> View
                                             </button>
+                                            <?php if (in_array($patient['status'], ['no show', 'cancelled'])): ?>
+                                                <button class="btn btn-primary requeue-patient" data-id="<?php echo $patient['id']; ?>">
+                                                    <i class="fas fa-redo"></i> Requeue
+                                                </button>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>
@@ -361,6 +406,40 @@ $patients = $patient_model->get_all_ordered_by_registration();
                 <div id="patient-summary-content">
                     <!-- Patient summary will be populated here -->
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for requeue options -->
+    <div id="requeue-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-redo"></i> Requeue Patient</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="requeue-form">
+                    <div class="form-group">
+                        <label for="requeue-department">Department</label>
+                        <select id="requeue-department" name="department_id" required>
+                            <option value="">Select Department</option>
+                            <!-- Departments will be populated via JavaScript -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="requeue-staff">Staff</label>
+                        <select id="requeue-staff" name="department_staff_id" required>
+                            <option value="">Select Staff</option>
+                            <!-- Staff will be populated via JavaScript -->
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary close-btn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-redo"></i> Requeue Patient
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -486,27 +565,27 @@ $patients = $patient_model->get_all_ordered_by_registration();
                                     <div class="summary-grid">
                                         <div class="summary-item">
                                             <strong><i class="fas fa-tint"></i> Blood Pressure</strong>
-                                            <span>${patient.bp || 'N/A'}</span>
+                                            <span>${patient.latest_bp || 'N/A'}</span>
                                         </div>
                                         <div class="summary-item">
                                             <strong><i class="fas fa-thermometer-half"></i> Temperature</strong>
-                                            <span>${patient.temp || 'N/A'}</span>
+                                            <span>${patient.latest_temp || 'N/A'}</span>
                                         </div>
                                         <div class="summary-item">
                                             <strong><i class="fas fa-heart"></i> CR/PR</strong>
-                                            <span>${patient.cr_pr || 'N/A'}</span>
+                                            <span>${patient.latest_cr_pr || 'N/A'}</span>
                                         </div>
                                         <div class="summary-item">
                                             <strong><i class="fas fa-lungs"></i> Respiratory Rate</strong>
-                                            <span>${patient.rr || 'N/A'}</span>
+                                            <span>${patient.latest_rr || 'N/A'}</span>
                                         </div>
                                         <div class="summary-item">
                                             <strong><i class="fas fa-weight"></i> Weight</strong>
-                                            <span>${patient.wt || 'N/A'}</span>
+                                            <span>${patient.latest_wt || 'N/A'}</span>
                                         </div>
                                         <div class="summary-item">
                                             <strong><i class="fas fa-wind"></i> Oxygen Saturation</strong>
-                                            <span>${patient.o2sat || 'N/A'}</span>
+                                            <span>${patient.latest_o2sat || 'N/A'}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -535,6 +614,133 @@ $patients = $patient_model->get_all_ordered_by_registration();
         $(window).on('click', function(event) {
             if (event.target == $('#patient-modal')[0]) {
                 $('#patient-modal').hide();
+            }
+        });
+
+        // Handle requeue patient button clicks
+        $(document).on('click', '.requeue-patient', function() {
+            var patientId = $(this).data('id');
+
+            // Fetch departments and populate modal
+            $.ajax({
+                url: '../app/controllers/PatientController.php',
+                type: 'GET',
+                data: {
+                    action: 'get_all_queue_overview'
+                },
+                dataType: 'json',
+                success: function(data) {
+                    if (data.success) {
+                        // Populate departments
+                        $('#requeue-department').empty().append('<option value="">Select Department</option>');
+                        data.overview.forEach(function(dept) {
+                            $('#requeue-department').append(`<option value="${dept.id}">${dept.name}</option>`);
+                        });
+
+                        // Store patient ID for later use
+                        $('#requeue-form').data('patient-id', patientId);
+
+                        // Show modal
+                        $('#requeue-modal').show();
+                    } else {
+                        alert('Failed to load departments. Please try again.');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching departments:', error);
+                    alert('Failed to load departments. Please try again.');
+                }
+            });
+        });
+
+        // Handle department change to populate staff
+        $(document).on('change', '#requeue-department', function() {
+            var departmentId = $(this).val();
+            var staffSelect = $('#requeue-staff');
+
+            if (departmentId) {
+                // Fetch staff for the selected department
+                $.ajax({
+                    url: 'get_department_staff.php',
+                    type: 'GET',
+                    data: {
+                        department_id: departmentId
+                    },
+                    dataType: 'json',
+                    success: function(staff) {
+                        console.log('Staff data received:', staff);
+                        staffSelect.empty().append('<option value="">Select Staff</option>');
+                        if (staff && staff.length > 0) {
+                            staff.forEach(function(member) {
+                                console.log('Adding staff member:', member);
+                                staffSelect.append(`<option value="${member.id}">${member.name}</option>`);
+                            });
+                        } else {
+                            console.log('No staff found for this department');
+                            staffSelect.append('<option value="">No staff available</option>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching staff:', error);
+                        console.error('Response:', xhr.responseText);
+                        staffSelect.empty().append('<option value="">Select Staff</option>');
+                        alert('Failed to load staff. Please try again.');
+                    }
+                });
+            } else {
+                staffSelect.empty().append('<option value="">Select Staff</option>');
+            }
+        });
+
+        // Handle requeue form submission
+        $(document).on('submit', '#requeue-form', function(e) {
+            e.preventDefault();
+
+            var patientId = $(this).data('patient-id');
+            var departmentId = $('#requeue-department').val();
+            var staffId = $('#requeue-staff').val();
+
+            if (!departmentId || !staffId) {
+                alert('Please select both department and staff.');
+                return;
+            }
+
+            // Submit requeue request
+            $.ajax({
+                url: '../app/controllers/PatientController.php',
+                type: 'GET',
+                data: {
+                    action: 'requeue_patient',
+                    patient_id: patientId,
+                    department_id: departmentId,
+                    department_staff_id: staffId
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Patient requeued successfully with queue number: ' + response.queue_number);
+                        $('#requeue-modal').hide();
+                        location.reload();
+                    } else {
+                        alert('Failed to requeue patient: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error requeuing patient:', error);
+                    alert('Failed to requeue patient. Please try again.');
+                }
+            });
+        });
+
+        // Close requeue modal
+        $(document).on('click', '#requeue-modal .close-btn', function() {
+            $('#requeue-modal').hide();
+        });
+
+        // Close requeue modal when clicking outside
+        $(window).on('click', function(event) {
+            if (event.target == $('#requeue-modal')[0]) {
+                $('#requeue-modal').hide();
             }
         });
     });

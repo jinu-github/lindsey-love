@@ -16,12 +16,11 @@ class Patient {
         $this->conn = $db;
     }
 
-    public function create($first_name, $middle_name, $last_name, $birthdate, $contact_number, $reason_for_visit, $parent_guardian, $queue_number, $department_id, $doctor_id, $address = null, $gender = null, $civil_status = null, $registration_datetime = null, $bp = null, $temp = null, $cr_pr = null, $rr = null, $wt = null, $o2sat = null) {
+    public function create($first_name, $middle_name, $last_name, $birthdate, $contact_number, $reason_for_visit, $parent_guardian, $queue_number, $department_id, $department_staff_id, $address = null, $gender = null, $civil_status = null, $registration_datetime = null) {
         $age = $this->calculateAge($birthdate);
-        $query = "INSERT INTO " . $this->table_name . " (first_name, middle_name, last_name, birthdate, age, contact_number, reason_for_visit, parent_guardian, queue_number, department_id, doctor_id, address, gender, civil_status, registration_datetime, bp, temp, cr_pr, rr, wt, o2sat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO " . $this->table_name . " (first_name, middle_name, last_name, birthdate, age, contact_number, reason_for_visit, parent_guardian, queue_number, department_id, department_staff_id, address, gender, civil_status, registration_datetime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("ssssisssiiissssssssss", $first_name, $middle_name, $last_name, $birthdate, $age, $contact_number, $reason_for_visit, $parent_guardian, $queue_number, $department_id, $doctor_id, $address, $gender, $civil_status, $registration_datetime, $bp, $temp, $cr_pr, $rr, $wt, $o2sat);
-
+        $stmt->bind_param("ssssisssiiissss", $first_name, $middle_name, $last_name, $birthdate, $age, $contact_number, $reason_for_visit, $parent_guardian, $queue_number, $department_id, $department_staff_id, $address, $gender, $civil_status, $registration_datetime);
 
         if ($stmt->execute()) {
             return true;
@@ -30,9 +29,9 @@ class Patient {
     }
 
     public function get_next_queue_number($department_id) {
-        // Get the maximum queue number for the department
+        // Get the maximum queue number for the department from all patients
         // Queue numbers will continuously increment and only reset when the "Reset Queue" button is clicked
-        $query = "SELECT MAX(queue_number) as max_queue FROM " . $this->table_name . " 
+        $query = "SELECT MAX(queue_number) as max_queue FROM " . $this->table_name . "
                   WHERE department_id = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $department_id);
@@ -41,10 +40,11 @@ class Patient {
         return $result['max_queue'] ? $result['max_queue'] + 1 : 1;
     }
 
+
     public function get_all_by_department($department_id) {
-    $query = "SELECT p.*, d.name as doctor_name, dep.name as department_name
+    $query = "SELECT p.*, d.name as department_staff_name, dep.name as department_name
               FROM " . $this->table_name . " p
-              LEFT JOIN doctors d ON p.doctor_id = d.id
+              LEFT JOIN department_staff d ON p.department_staff_id = d.id
               LEFT JOIN departments dep ON p.department_id = dep.id
               WHERE p.department_id = ? AND p.status NOT IN ('done', 'cancelled')
               ORDER BY p.queue_number ASC";
@@ -55,9 +55,9 @@ class Patient {
 }
 
     public function get_all_by_department_with_names($department_id) {
-    $query = "SELECT p.id, p.first_name, p.middle_name, p.last_name, p.age, p.contact_number, p.queue_number, p.department_id, p.doctor_id, p.status, p.created_at, p.check_in_time, p.birthdate, p.reason_for_visit, p.parent_guardian, d.name as doctor_name
+    $query = "SELECT p.id, p.first_name, p.middle_name, p.last_name, p.age, p.contact_number, p.queue_number, p.department_id, p.department_staff_id, p.status, p.created_at, p.check_in_time, p.birthdate, p.reason_for_visit, p.parent_guardian, d.name as department_staff_name
               FROM " . $this->table_name . " p
-              LEFT JOIN doctors d ON p.doctor_id = d.id
+              LEFT JOIN department_staff d ON p.department_staff_id = d.id
               WHERE p.department_id = ? AND p.status NOT IN ('done', 'cancelled')
               ORDER BY p.queue_number ASC";
     $stmt = $this->conn->prepare($query);
@@ -67,9 +67,9 @@ class Patient {
 }
 
     public function get_all() {
-    $query = "SELECT p.*, d.name as doctor_name, dep.name as department_name
+    $query = "SELECT p.*, d.name as department_staff_name, dep.name as department_name
               FROM " . $this->table_name . " p
-              LEFT JOIN doctors d ON p.doctor_id = d.id
+              LEFT JOIN department_staff d ON p.department_staff_id = d.id
               LEFT JOIN departments dep ON p.department_id = dep.id
               ORDER BY p.created_at DESC";
     $stmt = $this->conn->prepare($query);
@@ -78,9 +78,9 @@ class Patient {
 }
 
     public function get_all_ordered_by_registration() {
-        $query = "SELECT p.*, d.name as doctor_name, dep.name as department_name
+        $query = "SELECT p.*, d.name as department_staff_name, dep.name as department_name
                   FROM " . $this->table_name . " p
-                  LEFT JOIN doctors d ON p.doctor_id = d.id
+                  LEFT JOIN department_staff d ON p.department_staff_id = d.id
                   LEFT JOIN departments dep ON p.department_id = dep.id
                   ORDER BY p.registration_datetime DESC";
         $stmt = $this->conn->prepare($query);
@@ -123,11 +123,11 @@ class Patient {
     return $result->fetch_assoc();
 }
 
-    public function update($id, $first_name, $middle_name, $last_name, $birthdate, $contact_number, $reason_for_visit, $parent_guardian, $department_id, $doctor_id, $address = null, $gender = null, $civil_status = null, $registration_datetime = null, $bp = null, $temp = null, $cr_pr = null, $rr = null, $wt = null, $o2sat = null) {
+    public function update($id, $first_name, $middle_name, $last_name, $birthdate, $contact_number, $reason_for_visit, $parent_guardian, $department_id, $department_staff_id, $address = null, $gender = null, $civil_status = null, $registration_datetime = null) {
         $age = $this->calculateAge($birthdate);
-        $query = "UPDATE " . $this->table_name . " SET first_name = ?, middle_name = ?, last_name = ?, birthdate = ?, age = ?, contact_number = ?, reason_for_visit = ?, parent_guardian = ?, department_id = ?, doctor_id = ?, address = ?, gender = ?, civil_status = ?, registration_datetime = ?, bp = ?, temp = ?, cr_pr = ?, rr = ?, wt = ?, o2sat = ? WHERE id = ?";
+        $query = "UPDATE " . $this->table_name . " SET first_name = ?, middle_name = ?, last_name = ?, birthdate = ?, age = ?, contact_number = ?, reason_for_visit = ?, parent_guardian = ?, department_id = ?, department_staff_id = ?, address = ?, gender = ?, civil_status = ?, registration_datetime = ? WHERE id = ?";
         $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("ssssisssiisssssssssss", $first_name, $middle_name, $last_name, $birthdate, $age, $contact_number, $reason_for_visit, $parent_guardian, $department_id, $doctor_id, $address, $gender, $civil_status, $registration_datetime, $bp, $temp, $cr_pr, $rr, $wt, $o2sat, $id);
+        $stmt->bind_param("ssssisssiisssss", $first_name, $middle_name, $last_name, $birthdate, $age, $contact_number, $reason_for_visit, $parent_guardian, $department_id, $department_staff_id, $address, $gender, $civil_status, $registration_datetime, $id);
         return $stmt->execute();
     }
 
@@ -154,9 +154,9 @@ class Patient {
 
     // Get patients waiting in a department
     public function get_waiting_patients($department_id) {
-        $query = "SELECT p.*, d.name as doctor_name
+        $query = "SELECT p.*, d.name as department_staff_name
                   FROM " . $this->table_name . " p
-                  LEFT JOIN doctors d ON p.doctor_id = d.id
+                  LEFT JOIN department_staff d ON p.department_staff_id = d.id
                   WHERE p.department_id = ? AND p.status = 'waiting'
                   ORDER BY p.queue_number ASC";
         $stmt = $this->conn->prepare($query);
@@ -167,9 +167,9 @@ class Patient {
 
     // Get next patient in queue
     public function get_next_patient($department_id) {
-        $query = "SELECT p.*, d.name as doctor_name
+        $query = "SELECT p.*, d.name as department_staff_name
                   FROM " . $this->table_name . " p
-                  LEFT JOIN doctors d ON p.doctor_id = d.id
+                  LEFT JOIN department_staff d ON p.department_staff_id = d.id
                   WHERE p.department_id = ? AND p.status = 'waiting'
                   ORDER BY p.queue_number ASC
                   LIMIT 1";
@@ -182,9 +182,9 @@ class Patient {
 
     // Get patients who are almost next (within 3 positions)
     public function get_almost_next_patients($department_id, $limit = 3) {
-        $query = "SELECT p.*, d.name as doctor_name
+        $query = "SELECT p.*, d.name as department_staff_name
                   FROM " . $this->table_name . " p
-                  LEFT JOIN doctors d ON p.doctor_id = d.id
+                  LEFT JOIN department_staff d ON p.department_staff_id = d.id
                   WHERE p.department_id = ? AND p.status = 'waiting'
                   ORDER BY p.queue_number ASC
                   LIMIT ?";
@@ -196,34 +196,17 @@ class Patient {
 
     // Reset queue numbers for a department starting from 1
     public function reset_queue_numbers($department_id) {
-        $query = "SELECT id FROM " . $this->table_name . "
-                  WHERE department_id = ? AND status NOT IN ('done', 'cancelled')
-                  ORDER BY queue_number ASC";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("i", $department_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        // First, cancel all active patients in the department
+        $cancel_query = "UPDATE " . $this->table_name . "
+                        SET status = 'cancelled'
+                        WHERE department_id = ? AND status NOT IN ('done', 'cancelled')";
+        $cancel_stmt = $this->conn->prepare($cancel_query);
+        $cancel_stmt->bind_param("i", $department_id);
+        $cancel_stmt->execute();
 
-        $patients = [];
-        while ($row = $result->fetch_assoc()) {
-            $patients[] = $row['id'];
-        }
-
-        // Reset queue numbers starting from 1
-        $success = true;
-        $queue_number = 1;
-        foreach ($patients as $patient_id) {
-            $update_query = "UPDATE " . $this->table_name . " SET queue_number = ? WHERE id = ?";
-            $update_stmt = $this->conn->prepare($update_query);
-            $update_stmt->bind_param("ii", $queue_number, $patient_id);
-            if (!$update_stmt->execute()) {
-                $success = false;
-                break;
-            }
-            $queue_number++;
-        }
-
-        return $success;
+        // The queue numbering will automatically reset to 1 for new patients
+        // since get_next_queue_number() only considers active patients
+        return true;
     }
 
     // Helper method to combine separate name fields into full name
@@ -253,9 +236,9 @@ class Patient {
 
     // Get the latest patient added to a department
     public function get_latest_by_department($department_id) {
-        $query = "SELECT p.*, d.name as doctor_name, dep.name as department_name
+        $query = "SELECT p.*, d.name as department_staff_name, dep.name as department_name
                   FROM " . $this->table_name . " p
-                  LEFT JOIN doctors d ON p.doctor_id = d.id
+                  LEFT JOIN department_staff d ON p.department_staff_id = d.id
                   LEFT JOIN departments dep ON p.department_id = dep.id
                   WHERE p.department_id = ?
                   ORDER BY p.created_at DESC
@@ -297,7 +280,7 @@ class Patient {
                 $patient['status'],
                 'no show',
                 null, // department_id will be determined from patient
-                null, // doctor_id
+                null, // department_staff_id
                 null  // staff_id
             );
 
@@ -305,6 +288,33 @@ class Patient {
         }
 
         return $updated_count;
+    }
+
+    // Add vitals for a patient
+    public function addVitals($patient_id, $bp = null, $temp = null, $cr_pr = null, $rr = null, $wt = null, $o2sat = null) {
+        $query = "INSERT INTO patient_vitals (patient_id, bp, temp, cr_pr, rr, wt, o2sat) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("issssss", $patient_id, $bp, $temp, $cr_pr, $rr, $wt, $o2sat);
+        return $stmt->execute();
+    }
+
+    // Get latest vitals for a patient
+    public function getVitals($patient_id) {
+        $query = "SELECT * FROM patient_vitals WHERE patient_id = ? ORDER BY recorded_at DESC LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $patient_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+
+    // Get all vitals history for a patient
+    public function getVitalsHistory($patient_id) {
+        $query = "SELECT * FROM patient_vitals WHERE patient_id = ? ORDER BY recorded_at DESC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $patient_id);
+        $stmt->execute();
+        return $stmt->get_result();
     }
 }
 ?>

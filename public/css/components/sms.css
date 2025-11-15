@@ -45,7 +45,7 @@ body {
 
 /* ===== HEADER STYLES ===== */
 header {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: #0d6eb3 100%;
     color: white;
     padding: 1.25rem 2rem;
     box-shadow: var(--shadow-lg);
@@ -262,29 +262,6 @@ header h1 i {
     color: var(--primary);
 }
 
-/* ===== DEPARTMENT HEADER STYLES ===== */
-.department-header {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-    color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 12px;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    font-weight: 600;
-    font-size: 1.125rem;
-    box-shadow: var(--shadow-lg);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.department-header::before {
-    content: "\f0f8";
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    font-size: 1.25rem;
-}
-
 /* ===== PATIENT LIST STYLES ===== */
 .patient-list {
     background: var(--bg-color);
@@ -422,7 +399,7 @@ header h1 i {
 }
 
 #patientTable thead {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+    background: #0d6eb3 100%;
 }
 
 #patientTable th {
